@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>BikeSpareHub</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!-- Bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Google Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;600&display=swap" rel="stylesheet">
+
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #f5f7fa;
+        }
+
+        .navbar {
+            background: #0f172a;
+        }
+
+        .navbar-brand {
+            font-weight: 600;
+            color: #fff !important;
+        }
+
+        .hero {
+            background: linear-gradient(to right, #1e3a8a, #2563eb);
+            color: white;
+            padding: 60px 0;
+            text-align: center;
+        }
+
+        .card {
+            border: none;
+            border-radius: 12px;
+            transition: 0.3s;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+        }
+
+        .price {
+            font-size: 18px;
+            font-weight: 600;
+            color: #1e3a8a;
+        }
+
+        .low-stock {
+            color: red;
+            font-weight: bold;
+        }
+
+        .available {
+            color: green;
+            font-weight: bold;
+        }
+
+        footer {
+            background: #0f172a;
+            color: white;
+            padding: 20px;
+            margin-top: 40px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+
+<!-- NAVBAR -->
+<nav class="navbar navbar-expand-lg navbar-dark">
+    <div class="container">
+        <a class="navbar-brand" href="#">BikeSpareHub</a>
+        <a href="/cart" class="btn btn-outline-light">Cart</a>
+    </div>
+</nav>
+
+<!-- HERO SECTION -->
+<div class="hero">
+    <h1>Find Genuine Bike Spare Parts</h1>
+    <p>Old Models to New Models — All in One Place</p>
+    <button class="btn btn-light mt-3" onclick="loadParts()">Shop Now</button>
+</div>
+
+<!-- PRODUCTS -->
+<div class="container mt-5">
+    <div class="row" id="partsContainer"></div>
+</div>
+
+<footer>
+    © 2026 BikeSpareHub | Developed by Arun
+</footer>
+
+<script>
+
+    function loadParts() {
+        fetch('/api/parts')
+            .then(res => res.json())
+            .then(data => displayParts(data));
+    }
+
+    function displayParts(parts) {
+        let container = document.getElementById("partsContainer");
+        container.innerHTML = "";
+
+        parts.forEach(part => {
+
+            let stockClass = part.stock < 5 ? "low-stock" : "available";
+            let stockText = part.stock < 5 ? "Low Stock" : "In Stock";
+
+            container.innerHTML += `
+            <div class="col-md-4 mb-4">
+                <div class="card p-3 shadow-sm">
+
+                    <!-- PRODUCT IMAGE -->
+                    <img src="${part.imageUrl}"
+                         class="card-img-top rounded"
+                         style="height:220px; object-fit:cover;"
+                         onerror="this.src='https://via.placeholder.com/400x300?text=No+Image';">
+
+                    <div class="card-body">
+                        <h5>${part.partName}</h5>
+                        <p>
+                            ${part.brand} - ${part.model}<br>
+                            <span class="price">₹${part.price}</span><br>
+                            <span class="${stockClass}">${stockText}</span>
+                        </p>
+
+                        <!-- ADD TO CART -->
+                        <form action="/cart/add/${part.id}" method="post">
+                            <button type="submit" class="btn btn-primary w-100">
+                                Add to Cart
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        `;
+        });
+    }
+
+</script>
+
+</body>
+</html>
